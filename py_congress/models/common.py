@@ -1,9 +1,16 @@
 from pydantic import BaseModel as B
+from typing import Any, Union
 
-class ApiResponseRequest(B):
-    contentType: str
-    format: str
 
-class ApiResponsePagination(B):
-    count: int
-    next: str
+class CongressApiError(B):
+    class ErrorCode(B):
+        code: str
+        message: str
+
+    error: Union[str, ErrorCode]
+
+class UnsupportedActionError(Exception):
+    ...
+
+class MissingArgumentsError(Exception):
+    ...

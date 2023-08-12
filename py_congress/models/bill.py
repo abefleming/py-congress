@@ -1,6 +1,13 @@
 from typing import Any, List, Optional
 from pydantic import BaseModel as B, StrictInt, StrictStr, HttpUrl
-from py_congress.models.common import ApiResponsePagination, ApiResponseRequest
+
+class ApiResponseRequest(B):
+    contentType: str
+    format: str
+
+class ApiResponsePagination(B):
+    count: int
+    next: str
 
 class BaseBillResponse(B):
     request: ApiResponseRequest
@@ -9,51 +16,63 @@ class BaseBillResponse(B):
 class BillListResponse(BaseBillResponse):
     class _BillList(B):
         """Returned model for methods interfacing with the following endpoints:
-                - /bill
-                - /bill/:congress
-                - /bill/:congress/:billType
+        - /bill
+        - /bill/:congress
+        - /bill/:congress/:billType
         """
+
         class _LatestAction(B):
-            actionDate: str #TODO: put datetime validator and type for this. Ex: "2022-04-06"
+            actionDate: str  # TODO: put datetime validator and type for this. Ex: "2022-04-06"
             text: str
+
         congress: int
         latestAction: _LatestAction
-        number: str #TODO: validator for this to be checked as a number. Ex: "3076"
-        originChamber: str #TODO: Check for potential enum
-        originChamberCode: str #TODO: Check for potential enum
+        number: str  # TODO: validator for this to be checked as a number. Ex: "3076"
+        originChamber: str  # TODO: Check for potential enum
+        originChamberCode: str  # TODO: Check for potential enum
         title: str
-        type: str #TODO: Check for potential enum
-        updateDate: str #TODO: put datetime validator and type for this. Ex: "2022-09-29"
-        updateDateIncludingText: str #TODO: put datetime validator and type for this. Ex: "2022-09-29T03:27:05Z"
+        type: str  # TODO: Check for potential enum
+        updateDate: str  # TODO: put datetime validator and type for this. Ex: "2022-09-29"
+        updateDateIncludingText: str  # TODO: put datetime validator and type for this. Ex: "2022-09-29T03:27:05Z"
         url: HttpUrl
+
     bills: List[_BillList]
 
-class BillNumber(B):
+
+class BillNumber(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber
+    - /bill/:congress/:billType/:billNumber
     """
+
     class Bill(B):
         class Details(B):
             count: int
             url: HttpUrl
+
         class CboCostEstimatesItem(B):
             description: str
             pubDate: str
             title: str
             url: HttpUrl
+
         class CommitteeReportsItem(B):
             citation: str
             url: HttpUrl
+
         class Cosponsors(Details):
             countIncludingWithdrawnCosponsors: int
+
         class LatestAction(B):
             actionDate: str
             text: str
+
         class LawsItem(B):
             number: str
             type: str
+
         class PolicyArea(B):
             name: str
+
         class SponsorsItem(B):
             bioguideId: str
             district: int
@@ -62,10 +81,10 @@ class BillNumber(B):
             isByRequest: str
             lastName: str
             middleName: str
-            party: str #TODO: check for enum
-            state: str #TODO: Check for state type?
+            party: str  # TODO: check for enum
+            state: str  # TODO: Check for state type?
             url: HttpUrl
-            
+
         actions: Details
         amendments: Details
         cboCostEstimates: List[CboCostEstimatesItem]
@@ -77,7 +96,7 @@ class BillNumber(B):
         introducedDate: str
         latestAction: LatestAction
         laws: List[LawsItem]
-        number: str #TODO: Validator or loose cast to check if str is a number
+        number: str  # TODO: Validator or loose cast to check if str is a number
         originChamber: str
         policyArea: PolicyArea
         relatedBills: Details
@@ -90,32 +109,40 @@ class BillNumber(B):
         type: str
         updateDate: str
         updateDateIncludingText: str
+
     bill: Bill
 
-class BillActions(B):
+
+class BillActions(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:actions
+    - /bill/:congress/:billType/:billNumber/:actions
     """
+
     class ActionsItem(B):
         class SourceSystem(B):
-            code: int
+            code: int = None
             name: str
-        actionCode: str
-        actionDate: str #TODO: Datetime?
+
+        actionCode: str = None
+        actionDate: str = None  # TODO: Datetime?
         sourceSystem: SourceSystem
         text: str
         type: str
+
     actions: List[ActionsItem]
 
-class BillAmendments(B):
+
+class BillAmendments(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:ammendments
+    - /bill/:congress/:billType/:billNumber/:ammendments
     """
+
     class AmendmentsItem(B):
         class LatestAction(B):
             actionDate: str
             actionTime: str
             text: str
+
         congress: int
         description: str
         latestAction: LatestAction
@@ -123,28 +150,35 @@ class BillAmendments(B):
         type: str
         updateDate: str
         url: HttpUrl
+
     amendments: List[AmendmentsItem]
 
-class BillCommittees(B):
+
+class BillCommittees(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:committees
+    - /bill/:congress/:billType/:billNumber/:committees
     """
+
     class CommitteesItem(B):
         class ActivitiesItem(B):
             date: str
             name: str
+
         activities: List[ActivitiesItem]
         chamber: str
         name: str
         systemCode: str
         type: str
         url: HttpUrl
+
     committees: List[CommitteesItem]
 
-class BillCosponsors(B):
+
+class BillCosponsors(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:cosponsors
+    - /bill/:congress/:billType/:billNumber/:cosponsors
     """
+
     class CosponsorsItem(B):
         bioguideId: str
         district: int
@@ -157,19 +191,24 @@ class BillCosponsors(B):
         sponsorshipDate: str
         state: str
         url: HttpUrl
+
     cosponsors: List[CosponsorsItem]
 
-class BillRelatedBills(B):
+
+class BillRelatedBills(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:relatedbills
+    - /bill/:congress/:billType/:billNumber/:relatedbills
     """
+
     class RelatedBillsItem(B):
         class LatestAction(B):
             actionDate: str
             text: str
+
         class RelationshipDetailsItem(B):
             identifiedBy: str
             type: str
+
         congress: int
         latestAction: LatestAction
         number: int
@@ -177,50 +216,65 @@ class BillRelatedBills(B):
         title: str
         type: str
         url: HttpUrl
+
     relatedBills: List[RelatedBillsItem]
 
-class BillSubjects(B):
+
+class BillSubjects(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:subjects
+    - /bill/:congress/:billType/:billNumber/:subjects
     """
+
     class SubjectItems(B):
         class LegislativeSubjectsItem(B):
             name: str
+
         class PolicyArea(B):
             name: str
+
         legislativeSubjects: List[LegislativeSubjectsItem]
         policyArea: PolicyArea
+
     subjects: SubjectItems
 
-class BillSummaries(B):
+
+class BillSummaries(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:summaries
+    - /bill/:congress/:billType/:billNumber/:summaries
     """
+
     class SummariesItem(B):
         actionDate: str
         actionDesc: str
         text: str
         updateDate: str
         versionCode: str
+
     summaries: List[SummariesItem]
 
-class BillText(B):
+
+class BillText(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:text
+    - /bill/:congress/:billType/:billNumber/:text
     """
+
     class TextVersionsItem(B):
         class FormatsItem(B):
             type: str
             url: HttpUrl
+
         date: Optional[str]
         formats: List[FormatsItem]
         type: str
+
     textVersions: List[TextVersionsItem]
 
-class BillTitles(B):
+
+class BillTitles(BaseBillResponse):
     """Returned model for methods interfacing with the following endpoints:
-        - /bill/:congress/:billType/:billNumber/:titles
+    - /bill/:congress/:billType/:billNumber/:titles
     """
+
     class TitlesItem(B):
         billTextVersionCode: Optional[str]
         billTextVersionName: Optional[str]
@@ -228,4 +282,5 @@ class BillTitles(B):
         chamberName: Optional[str]
         title: str
         titleType: str
+
     titles: List[TitlesItem]
